@@ -42,4 +42,9 @@ class User extends Authenticatable implements JWTSubject
         'email'           => $this->email,
         'role'            => $this->role];
     }
+
+    public function lihatsiswa()
+    {
+        return $this->hasMany(DatabaseSiswa::class);
+    }
 }
