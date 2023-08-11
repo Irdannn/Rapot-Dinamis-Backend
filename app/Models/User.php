@@ -8,12 +8,18 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Tymon\JWTAuth\Contracts\JWTSubject;
+use Illuminate\Support\Str;
+use App\Traits\UUID;
 
 class User extends Authenticatable implements JWTSubject
 {
+    protected $primaryKey = 'id';
+    public $incrementing = false; // Set to false to indicate that the primary key is not auto-incrementing
+
     use HasApiTokens, HasFactory, Notifiable;
 
     protected $fillable = [
+        'username',
         'name',
         'role',
         'email',
@@ -38,13 +44,49 @@ class User extends Authenticatable implements JWTSubject
     {
         return [
         'id'              => $this->id,
+        'username'        => $this->username,
         'name'            => $this->name,
         'email'           => $this->email,
         'role'            => $this->role];
     }
 
-    public function lihatsiswa()
+    // Define the relationship with the UserProfile model
+    public function profile()
     {
-        return $this->hasMany(DatabaseSiswa::class);
+        return $this->hasOne(Profile::class);
+    }
+
+    public function avatar()
+    {
+        return $this->hasOne(Avatar::class);
+    }
+
+    public function userProfile()
+    {
+        return $this->hasMany(Profile::class, 'avatar_id', 'id');
+    }
+
+    // Method to create a user profile when a user is registered
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($model) {
+            $model->id = Str::uuid();
+        });
+
+        self::created(function ($user) {
+            $user->profile()->create([
+                'username' => $user->username,
+                'name' => $user->name,
+                'email' => $user->email,
+                'role' => $user->role
+            ]);
+        });
+
+        static::deleting(function(User $user) { 
+            $user->profile()->delete();
+            $user->avatar()->delete();
+       });
     }
 }

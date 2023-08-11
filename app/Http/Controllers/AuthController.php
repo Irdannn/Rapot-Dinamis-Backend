@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\UserProfile;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -14,7 +15,9 @@ class AuthController extends Controller
         $this->middleware('auth:api', ['except' =>  ['login', 'register']]);
     }
     public function register(Request $request){
+
         $validator = Validator::make($request->all(),[
+            'username' => 'required',
             'name' => 'required',
             'role' => 'required',
             'email' => 'required|string|email',
@@ -34,8 +37,9 @@ class AuthController extends Controller
     }
 
     public function login(Request $request){
+        
         $validator = Validator::make($request->all(),[
-            'email' => 'required|email',
+            'email' => 'required|string',
             'password'=>'required|string|min:6'
         ]);
         if($validator->fails()){
@@ -72,6 +76,13 @@ class AuthController extends Controller
     //     ]);
     // }
 
+    // public function getUserProfile($user_id){
+    //     $userProfile = UserProfile::find($user_id);
+    //     $user = $userProfile->user;
+
+    //     return $user;
+    // }
+
     public function profile(){
         return response()->json(auth()->user());
     }
@@ -80,5 +91,17 @@ class AuthController extends Controller
         return response()->json([
             'message'=>'User Logout'
         ]);
+    }
+
+    public function destroy($id)
+    {
+        $user = User::find($id);
+        if (!$user) {
+            return response()->json(['message' => 'User  Profile Tidak ditemukan'], 404);
+        }
+
+        $user->delete();
+
+        return response()->json(['message' => 'User Dihapus']);
     }
 }

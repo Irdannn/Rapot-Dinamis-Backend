@@ -1,11 +1,10 @@
 <?php
 
-use App\Http\Controllers\DatabaseSiswaController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\SiswaController;
-use App\Models\DatabaseSiswa;
+use App\Http\Controllers\AvatarController;
+use App\Http\Controllers\ProfileController;
 
 /*
 |--------------------------------------------------------------------------
@@ -18,20 +17,29 @@ use App\Models\DatabaseSiswa;
 |
 */
 
-
 Route::group(['middleware' => 'api', 'prefix'=> 'auth'], function($router){
     Route::post('/register', [AuthController::class, 'register']);
     Route::post('/login', [AuthController::class, 'login']);
     Route::get('/profile', [AuthController::class, 'profile']);
     Route::get('/logout', [AuthController::class, 'logout']);
-    Route::post('refresh', [AuthController::class, 'refresh']);
+    Route::delete('/destroy/{id}', [AuthController::class, 'destroy']);
+    // Route::post('refresh', [AuthController::class, 'refresh']);
+    // Route::get('/show/{user_id}', [AuthController::class, 'getUserProfile']);
 });
 
-Route::group(['middleware' => 'api', 'prefix'=> 'siswa'], function($router){
-    Route::get('/index', [DatabaseSiswaController::class, 'index']);
-    Route::post('/store', [DatabaseSiswaController::class, 'store']);
-    Route::get('/show/{id}', [DatabaseSiswaController::class, 'show']);
-    Route::put('/update', [DatabaseSiswaController::class, 'update']);
-    Route::put('/update/{id}', [DatabaseSiswaController::class, 'update']);
-    Route::delete('/destroy/{id}', [DatabaseSiswaController::class, 'destroy']);
+Route::group(['middleware' => 'api', 'prefix'=> 'user'], function($router){
+    Route::get('/index', [ProfileController::class, 'index']);
+    Route::get('/show/{id}', [ProfileController::class, 'show']);
+    Route::get('/showuser/{user_id}', [ProfileController::class, 'showUser']);
+    Route::put('/update/{id}', [ProfileController::class, 'update']);
+    // Route::delete('/destroy/{id}', [ProfileController::class, 'destroy']);
+});
+
+Route::group(['middleware' => 'api', 'prefix'=> 'foto'], function($router){
+    Route::post('/create',[AvatarController::class,'create']);
+    Route::get('/get/{user_id}',[AvatarController::class,'get']);
+    Route::get('/show/{id}/avatar',[AvatarController::class,'show']);
+    // Route::delete('/delete/{id}',[AvatarController::class,'delete']);
+    // Route::patch('/edit/{id}',[AvatarController::class,'edit']);
+    // Route::put('/update/{id}',[AvatarController::class,'update']);
 });
